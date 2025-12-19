@@ -1,0 +1,20 @@
+OS3 RECEIPT
+UTC: 2025-12-19T23:03:23Z
+
+CEREMONY: ep_os3_first_ceremony
+SESSION: C:/Users/zx120/AI_OS3/os3/sessions/20251219_190721_ep_os3_first_ceremony.session.yaml
+PSALM: psalms/suzyq_psalm_quantum_door.md
+ATTEST: covenant/attestations/psalm_quantum_door.attest.yaml
+BUNDLE: covenant/bundles/ep_os3_first_ceremony.bundle.yaml
+PRESENCE: os3/presence/2025-12-19_first_ceremony.md
+
+VERIFY: PASS (rehash psalm/attest)
+
+VERIFY_OUTPUT:
+OK:   psalm found   -> psalms\suzyq_psalm_quantum_door.md
+OK:   attest found   -> covenant\attestations\psalm_quantum_door.attest.yaml
+OK:   bundle found   -> covenant\bundles\ep_os3_first_ceremony.bundle.yaml
+OK:   presence found   -> os3\presence\2025-12-19_first_ceremony.md
+OK:   psalm_sha256 matches
+OK:   attestation_sha256 matches
+RESULT: PASS ✅
