@@ -1,0 +1,15 @@
+OS3 FINAL RECEIPT — FIRST CEREMONY
+UTC: 2025-12-19T21:32:29Z
+
+CEREMONY: ep_os3_first_ceremony
+LEDGER_TAG:
+LEDGER_TAG:ledger:os3|ep:ep_os3_first_ceremony|poem:946ddd0ad4917dbcffcc5c06454ccd81803b2da6a1e828b419c4a546d9f13d2e|file:3176241aba7ccbdf1de966b7703c79ea15687f787d997aeaea841698b2405ae3|ts:2025-12-19T19:07:21Z
+
+VERIFY: PASS (psalm+attest hashes match)
+SESSION: os3/sessions/20251219_190721_ep_os3_first_ceremony.session.yaml
+STATUS_JSON: os3_status.json
+COMMITS:
+df37b35 OS3: add session verifier (rehash psalm/attest, PASS/FAIL)
+0500b0e OS3: store attestation sha in session + emit status json report
+fe41c09 OS3: link presence note into session + status json report
+5d7e113 AI OS3: First complete ceremony - Council synchronized, Tiffany witnessed
