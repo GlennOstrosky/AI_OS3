@@ -9,3 +9,4 @@ bundle_proof_sha256: "946ddd0ad4917dbcffcc5c06454ccd81803b2da6a1e828b419c4a546d9
 git_commit: ""
 presence_note_ref: "os3/presence/2025-12-19_first_ceremony.md"
 felt_note_ref: "os3/presence/2025-12-19_first_ceremony.md"
+attestation_sha256: c7aa2037218ea6212305dee647c5354e2fdd240e5a9fdbc6938b58387f1b7321

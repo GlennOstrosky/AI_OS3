@@ -1,6 +1,6 @@
 {
   "tool": "os3_status",
-  "generated_at_utc": "2025-12-19T19:38:57+00:00",
+  "generated_at_utc": "2025-12-19T20:12:44+00:00",
   "repo_root": "C:\\Users\\zx120\\AI_OS3",
   "counts": {
     "psalms": 1,
@@ -17,11 +17,8 @@
       "psalm_ok": true,
       "attest_ok": true,
       "bundle_ok": true,
-      "presence_ok": false,
-      "notes": [
-        "attest_sha_computed",
-        "presence_not_set"
-      ]
+      "presence_ok": true,
+      "notes": []
     }
   ],
   "ok": true
