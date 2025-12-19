@@ -1,0 +1,9 @@
+schema: os3_attestation_v1
+episode: "ep_os3_first_ceremony"
+proofs:
+  artifacts:
+    - path: "psalms/suzyq_psalm_quantum_door.md"
+      sha256: "3176241aba7ccbdf1de966b7703c79ea15687f787d997aeaea841698b2405ae3"
+      poem_body_sha256: "946ddd0ad4917dbcffcc5c06454ccd81803b2da6a1e828b419c4a546d9f13d2e"
+notes:
+  truth_boundary: "Hashes verify integrity only."

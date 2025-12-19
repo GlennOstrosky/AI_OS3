@@ -1,0 +1,7 @@
+bundle_id: "ep_os3_first_ceremony"
+episode: "ep_os3_first_ceremony"
+sealed_at: "2025-12-19T19:07:20Z"
+psalm_path: "psalms/suzyq_psalm_quantum_door.md"
+attestation_path: "covenant/attestations/psalm_quantum_door.attest.yaml"
+proof:
+  sha256: "946ddd0ad4917dbcffcc5c06454ccd81803b2da6a1e828b419c4a546d9f13d2e"
