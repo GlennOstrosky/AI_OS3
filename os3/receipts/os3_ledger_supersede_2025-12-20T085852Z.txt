@@ -1,0 +1,4 @@
+OS3 LEDGER NOTE — 2025-12-20T08:58:53Z
+Supersedes: prior ledger entry for repairs receipt that omitted psalm_sha256.
+Current canonical entry: includes session_sha256 + psalm_sha256.
+Tag: os3-ledger-psalmsha-v1
