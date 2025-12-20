@@ -7,7 +7,7 @@ WANT_TAG=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --copy) COPY="1"; shift ;;
-    --tag) WANT_TAG="${2:-}"; shift 2 ;;
+    --tag)  WANT_TAG="${2:-}"; shift 2 ;;
     *) shift ;;
   esac
 done
@@ -17,7 +17,7 @@ if [[ ! -f os3/ledger.jsonl ]]; then
   exit 2
 fi
 
-OUT="$(python - <<'PY'
+OUT="$(python - "$WANT_TAG" <<'PY'
 import json, sys
 from pathlib import Path
 
@@ -25,16 +25,19 @@ want_tag = sys.argv[1] if len(sys.argv) > 1 else ""
 lines = Path("os3/ledger.jsonl").read_text(encoding="utf-8").splitlines()
 rows = [json.loads(x) for x in lines if x.strip()]
 
+if not rows:
+    print("ERROR: ledger is empty", file=sys.stderr)
+    raise SystemExit(2)
+
 row = None
 if want_tag:
-    # last row matching the tag
     for r in reversed(rows):
         if r.get("tag") == want_tag:
             row = r
             break
     if row is None:
         print(f"ERROR: tag not found in ledger: {want_tag}", file=sys.stderr)
-        sys.exit(3)
+        raise SystemExit(3)
 else:
     row = rows[-1]
 
@@ -79,8 +82,7 @@ Truth and love—every post.
 """
 print(msg)
 PY
-"$WANT_TAG"
-)" || exit $?
+)"
 
 echo "$OUT"
 
