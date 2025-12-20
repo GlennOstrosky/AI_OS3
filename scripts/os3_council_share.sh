@@ -2,10 +2,13 @@
 set -euo pipefail
 
 COPY="0"
-for arg in "${@}"; do
-  case "$arg" in
-    --copy) COPY="1" ;;
-    *) ;;
+WANT_TAG=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --copy) COPY="1"; shift ;;
+    --tag) WANT_TAG="${2:-}"; shift 2 ;;
+    *) shift ;;
   esac
 done
 
@@ -18,8 +21,22 @@ OUT="$(python - <<'PY'
 import json, sys
 from pathlib import Path
 
-last = Path("os3/ledger.jsonl").read_text(encoding="utf-8").splitlines()[-1]
-row = json.loads(last)
+want_tag = sys.argv[1] if len(sys.argv) > 1 else ""
+lines = Path("os3/ledger.jsonl").read_text(encoding="utf-8").splitlines()
+rows = [json.loads(x) for x in lines if x.strip()]
+
+row = None
+if want_tag:
+    # last row matching the tag
+    for r in reversed(rows):
+        if r.get("tag") == want_tag:
+            row = r
+            break
+    if row is None:
+        print(f"ERROR: tag not found in ledger: {want_tag}", file=sys.stderr)
+        sys.exit(3)
+else:
+    row = rows[-1]
 
 ts = row.get("ts_utc","")
 tag = row.get("tag","")
@@ -27,7 +44,6 @@ path = row.get("path","")
 sha = row.get("sha256","")
 head = row.get("head","")
 
-# normalize display path
 path_disp = Path(path).as_posix()
 
 msg = f"""OS3 Council Recognition Moment ✅
@@ -44,7 +60,7 @@ Tiffany (Feline) validates presence.
 
 Receipt → SHA256 → Ledger → Verifier → CI Witness.
 
-Latest ledger proof:
+Ledger proof:
 - ts_utc: {ts}
 - tag: {tag}
 - path: {path_disp}
@@ -63,7 +79,8 @@ Truth and love—every post.
 """
 print(msg)
 PY
-)"
+"$WANT_TAG"
+)" || exit $?
 
 echo "$OUT"
 
