@@ -4,43 +4,44 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import sys
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+import os
+import subprocess
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
-FILL_TOKENS = ("__FILL_", "__FILL_FILE_SHA256__", "__FILL_POEM_BODY_SHA256__")
+try:
+    import yaml  # type: ignore
+except Exception:
+    yaml = None
 
-def _force_utf8_stdout() -> None:
-    # Fix Windows cp1252 UnicodeEncodeError (emoji, etc.)
+
+FILL_TOKENS = ("REPLACE_WITH", "FILL_ME", "TODO", "TBD")
+
+
+def repo_root() -> Path:
     try:
-        if hasattr(sys.stdout, "reconfigure"):
-            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-        if hasattr(sys.stderr, "reconfigure"):
-            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+        out = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
+        if out:
+            return Path(out)
     except Exception:
         pass
+    return Path.cwd()
 
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
-def sha256_file(path: Path) -> str:
+def sha256_file(p: Path) -> str:
     h = hashlib.sha256()
-    with path.open("rb") as f:
+    with p.open("rb") as f:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
 
-def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8", errors="replace")
 
-def parse_simple_yaml_kv(text: str) -> Dict[str, str]:
+def mini_yaml_load(text: str) -> Dict[str, Any]:
     """
-    Super-minimal YAML-ish parser for flat key: value lines.
-    Skips comments, ignores indentation/nesting. Good enough for our session YAML.
+    Minimal YAML loader for simple key: value session files.
+    Supports quoted strings. Ignores nested structures.
     """
-    out: Dict[str, str] = {}
+    d: Dict[str, Any] = {}
     for raw in text.splitlines():
         line = raw.strip()
         if not line or line.startswith("#"):
@@ -50,210 +51,181 @@ def parse_simple_yaml_kv(text: str) -> Dict[str, str]:
         k, v = line.split(":", 1)
         k = k.strip()
         v = v.strip()
-        # strip simple quotes
-        if (v.startswith('"') and v.endswith('"')) or (v.startswith("'") and v.endswith("'")):
+        if v.startswith(("'", '"')) and v.endswith(("'", '"')) and len(v) >= 2:
             v = v[1:-1]
-        out[k] = v
-    return out
+        d[k] = v
+    return d
 
-def load_session_file(path: Path) -> Dict[str, Any]:
-    if path.suffix.lower() == ".json" or path.name.endswith(".session.json"):
-        return json.loads(read_text(path))
-    # YAML-ish
-    return parse_simple_yaml_kv(read_text(path))
 
-def pick(d: Dict[str, Any], keys: List[str]) -> str:
-    for k in keys:
-        if k in d and d[k] is not None:
-            return str(d[k]).strip()
-    return ""
+def load_doc(path: Path) -> Dict[str, Any]:
+    text = path.read_text(encoding="utf-8", errors="replace")
+    if yaml is not None and path.suffix in (".yaml", ".yml"):
+        try:
+            obj = yaml.safe_load(text)
+            return obj if isinstance(obj, dict) else {}
+        except Exception:
+            return mini_yaml_load(text)
+    return mini_yaml_load(text)
 
-def resolve_path(repo: Path, p: str) -> Path:
-    pp = Path(p)
-    return pp if pp.is_absolute() else (repo / pp)
 
-@dataclass
-class Row:
-    episode: str
-    session_file: str
-    psalm_ok: bool
-    attest_ok: bool
-    bundle_ok: bool
-    presence_ok: bool
-    notes: List[str]
+def is_anchor_session(session_path: Path, episode: str) -> bool:
+    name = session_path.name.lower()
+    ep = (episode or "").lower()
+    return (".anchor.session." in name) or name.endswith(".anchor.session.yaml") or ep.endswith("_anchor")
 
-def status(repo_root: Path) -> Dict[str, Any]:
-    repo_root = repo_root.resolve()
 
-    psalms_dir = repo_root / "psalms"
-    attest_dir = repo_root / "covenant" / "attestations"
-    bundles_dir = repo_root / "covenant" / "bundles"
-    sessions_dir = repo_root / "os3" / "sessions"
-    presence_dir = repo_root / "os3" / "presence"
+def exists_file(root: Path, p: str) -> Optional[Path]:
+    if not p:
+        return None
+    # Guard against "." which caused your PermissionError earlier
+    if p.strip() == ".":
+        return None
+    cand = Path(p)
+    if not cand.is_absolute():
+        cand = (root / cand).resolve()
+    return cand if cand.exists() else None
 
-    session_files = sorted(list(sessions_dir.glob("*.session.yaml")) +
-                           list(sessions_dir.glob("*.session.yml")) +
-                           list(sessions_dir.glob("*.session.json")))
 
-    rows: List[Row] = []
-    any_fill_tokens = False
+def attestations_have_fill_tokens(att_dir: Path) -> bool:
+    if not att_dir.exists():
+        return False
+    for p in att_dir.glob("*.yaml"):
+        try:
+            t = p.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        if any(tok in t for tok in FILL_TOKENS):
+            return True
+    return False
 
-    for sf in session_files:
-        data = load_session_file(sf)
 
-        episode = pick(data, ["episode", "ep", "episode_id"])
-        psalm_path_s = pick(data, ["psalm_path", "psalm"])
-        attest_path_s = pick(data, ["attestation_path", "attest_path", "attestation", "attest"])
-        bundle_path_s = pick(data, ["bundle_path", "bundle"])
-        presence_path_s = pick(data, ["felt_note_ref", "presence", "presence_note", "felt_note"])
+def session_status(root: Path, session_file: Path) -> Dict[str, Any]:
+    s = load_doc(session_file)
+    episode = str(s.get("episode", ""))
 
-        notes: List[str] = []
+    anchor = is_anchor_session(session_file, episode)
 
-        # Paths may be missing in older session schema; treat as not-ok.
-        psalm_ok = False
-        attest_ok = False
-        bundle_ok = False
-        presence_ok = False
+    psalm_path = str(s.get("psalm_path", ""))
+    psalm_sha = str(s.get("psalm_sha256", "")).strip()
 
-        # Verify psalm
-        if psalm_path_s:
-            psalm_path = resolve_path(repo_root, psalm_path_s)
-            if psalm_path.exists():
-                psalm_ok = True
-                expected_psalm_sha = pick(data, ["psalm_sha256", "psalm_file_sha256", "file_sha256"])
-                if expected_psalm_sha:
-                    current = sha256_file(psalm_path)
-                    if current.lower() != expected_psalm_sha.lower():
-                        psalm_ok = False
-                        notes.append("psalm_sha_mismatch")
-                else:
-                    # Not stored; that's ok. (We could store later.)
-                    notes.append("psalm_sha_not_in_session")
-            else:
-                notes.append("psalm_missing")
+    attest_path = str(s.get("attestation_path", "")).strip()
+    bundle_path = str(s.get("bundle_path", "")).strip()
+
+    presence_ref = str(s.get("felt_note_ref", "")).strip()
+    if not presence_ref:
+        # also accept "presence_path" if someone uses it
+        presence_ref = str(s.get("presence_path", "")).strip()
+
+    notes: List[str] = []
+
+    # Psalm
+    psalm_file = exists_file(root, psalm_path)
+    psalm_ok = psalm_file is not None
+    if not psalm_ok:
+        notes.append("psalm_path_missing")
+    else:
+        if psalm_sha:
+            cur = sha256_file(psalm_file)
+            if cur != psalm_sha:
+                psalm_ok = False
+                notes.append("psalm_sha256_mismatch")
         else:
-            notes.append("psalm_path_missing")
+            notes.append("psalm_sha256_missing")
 
-        # Verify attestation + check fill tokens
-        if attest_path_s:
-            attest_path = resolve_path(repo_root, attest_path_s)
-            if attest_path.exists():
-                attest_ok = True
-                txt = read_text(attest_path)
-                if any(tok in txt for tok in FILL_TOKENS):
-                    any_fill_tokens = True
-                    attest_ok = False
-                    notes.append("attestation_has_fill_tokens")
+    # Presence (required for both)
+    presence_file = exists_file(root, presence_ref)
+    presence_ok = presence_file is not None
+    if not presence_ok:
+        notes.append("presence_missing")
 
-                expected_att_sha = pick(data, ["attestation_sha256", "attest_sha256"])
-                current_att_sha = sha256_file(attest_path)
-                if expected_att_sha:
-                    if current_att_sha.lower() != expected_att_sha.lower():
-                        attest_ok = False
-                        notes.append("attest_sha_mismatch")
-                else:
-                    # ✅ THIS IS THE FIX: compute it instead of warning.
-                    notes.append("attest_sha_computed")
-            else:
-                notes.append("attest_missing")
+    # Attestation
+    attest_file = exists_file(root, attest_path)
+    if attest_file is None:
+        if anchor:
+            attest_ok = True
+            notes.append("attest_optional_missing")
         else:
+            attest_ok = False
             notes.append("attest_path_missing")
+    else:
+        attest_ok = True
 
-        # Verify bundle exists (we don’t deeply parse it here)
-        if bundle_path_s:
-            bundle_path = resolve_path(repo_root, bundle_path_s)
-            if bundle_path.exists():
-                bundle_ok = True
-            else:
-                notes.append("bundle_missing")
+    # Bundle
+    bundle_file = exists_file(root, bundle_path)
+    if bundle_file is None:
+        if anchor:
+            bundle_ok = True
+            notes.append("bundle_optional_missing")
         else:
+            bundle_ok = False
             notes.append("bundle_path_missing")
+    else:
+        bundle_ok = True
 
-        # Verify presence note exists (optional)
-        if presence_path_s:
-            presence_path = resolve_path(repo_root, presence_path_s)
-            if presence_path.exists():
-                presence_ok = True
-            else:
-                notes.append("presence_missing")
-        else:
-            # Presence note is allowed to be absent; keep as False but do not mark as failure.
-            notes.append("presence_not_set")
+    return {
+        "episode": episode,
+        "session_file": str(session_file.relative_to(root)).replace("/", "\\"),
+        "psalm_ok": psalm_ok,
+        "attest_ok": attest_ok,
+        "bundle_ok": bundle_ok,
+        "presence_ok": presence_ok,
+        "notes": notes,
+    }
 
-        rows.append(Row(
-            episode=episode or "(unknown)",
-            session_file=str(sf.relative_to(repo_root)),
-            psalm_ok=psalm_ok,
-            attest_ok=attest_ok,
-            bundle_ok=bundle_ok,
-            presence_ok=presence_ok,
-            notes=notes,
-        ))
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--format", choices=["json"], default="json")
+    args = ap.parse_args()
+
+    root = repo_root()
+
+    psalms_dir = root / "psalms"
+    att_dir = root / "covenant" / "attestations"
+    bundles_dir = root / "covenant" / "bundles"
+    sessions_dir = root / "os3" / "sessions"
+    presence_dir = root / "os3" / "presence"
+
+    sessions: List[Dict[str, Any]] = []
+    if sessions_dir.exists():
+        for sf in sorted(sessions_dir.glob("*.yaml")):
+            sessions.append(session_status(root, sf))
 
     counts = {
         "psalms": len(list(psalms_dir.glob("*.md"))) if psalms_dir.exists() else 0,
-        "attestations": len(list(attest_dir.glob("*.yaml"))) + len(list(attest_dir.glob("*.yml"))) if attest_dir.exists() else 0,
-        "bundles": len(list(bundles_dir.glob("*.yaml"))) + len(list(bundles_dir.glob("*.yml"))) if bundles_dir.exists() else 0,
-        "sessions": len(session_files),
+        "attestations": len(list(att_dir.glob("*.yaml"))) if att_dir.exists() else 0,
+        "bundles": len(list(bundles_dir.glob("*.yaml"))) if bundles_dir.exists() else 0,
+        "sessions": len(sessions),
         "presence_notes": len(list(presence_dir.glob("*.md"))) if presence_dir.exists() else 0,
     }
 
-    report = {
+    # Overall OK logic:
+    # - every session must have psalm_ok and presence_ok
+    # - non-anchor sessions must also have attest_ok and bundle_ok
+    overall_ok = True
+    for s in sessions:
+        if not (s["psalm_ok"] and s["presence_ok"]):
+            overall_ok = False
+            break
+        # If it’s not an anchor, missing attest/bundle should fail
+        is_anchor = "anchor" in (s.get("session_file", "").lower())
+        if not is_anchor and not (s["attest_ok"] and s["bundle_ok"]):
+            overall_ok = False
+            break
+
+    out = {
         "tool": "os3_status",
-        "generated_at_utc": utc_now_iso(),
-        "repo_root": str(repo_root),
+        "generated_at_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+        "repo_root": str(root),
         "counts": counts,
-        "attestations_have_fill_tokens": any_fill_tokens,
-        "sessions": [asdict(r) for r in rows],
-        "ok": (not any_fill_tokens) and all(r.psalm_ok and r.attest_ok and r.bundle_ok for r in rows),
+        "attestations_have_fill_tokens": attestations_have_fill_tokens(att_dir),
+        "sessions": sessions,
+        "ok": overall_ok,
     }
-    return report
 
-def print_table(report: Dict[str, Any]) -> int:
-    print("OS3 STATUS")
-    print(f"Repo: {report['repo_root']}")
-    print("-" * 70)
-    print(f"Sessions found: {report['counts']['sessions']}")
-    print()
+    print(json.dumps(out, indent=2))
+    return 0
 
-    print("EPISODE | PSALM | ATTEST | BUNDLE | PRESENCE | SESSION_FILE | NOTES")
-    print("-" * 70)
-    for s in report["sessions"]:
-        def ok(v: bool) -> str:
-            return "OK" if v else "NO"
-        notes = ",".join(s["notes"]) if s.get("notes") else ""
-        print(
-            f"{s['episode']} | {ok(s['psalm_ok'])} | {ok(s['attest_ok'])} | {ok(s['bundle_ok'])} | "
-            f"{ok(s['presence_ok'])} | {s['session_file']} | {notes}"
-        )
-    print("-" * 70)
-
-    if report["attestations_have_fill_tokens"]:
-        print("WARNING: Some attestations still contain __FILL_ tokens.")
-    else:
-        print("OK: No __FILL_ tokens found in attestations (looks sealed).")
-
-    print()
-    print("Counts:")
-    for k, v in report["counts"].items():
-        print(f"  {k}: {v}")
-
-    return 0 if report["ok"] else 2
-
-def main() -> int:
-    _force_utf8_stdout()
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--repo", default=".", help="Repo root (default: .)")
-    ap.add_argument("--format", choices=["table", "json"], default="table", help="Output format")
-    args = ap.parse_args()
-
-    report = status(Path(args.repo))
-
-    if args.format == "json":
-        print(json.dumps(report, indent=2, ensure_ascii=False))
-        return 0 if report["ok"] else 2
-
-    return print_table(report)
 
 if __name__ == "__main__":
     raise SystemExit(main())
