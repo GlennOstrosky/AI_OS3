@@ -1,10 +1,10 @@
-### Ledger verification (OS3)
-
-AI_OS3 uses an append-only ledger (`os3/ledger.jsonl`) that records the SHA256 (`sha256`) of each sealed receipt/snapshot file (`path`). Verification is cross-platform via `scripts/verify_snapshot.py`, and CI runs the verifier on every push/PR (see `os3-verify` workflow). This establishes an auditable truth loop: receipt → sha256 → ledger → verifier → CI witness.
-
-Run locally:
-- `python scripts/verify_snapshot.py --last`
-- `python scripts/verify_snapshot.py --path <snapshot-path>`
-- `python scripts/verify_snapshot.py --tag <tag>`
-
-Workflow: `.github/workflows/os3-verify.yml`
+# AI_OS3
+Witnessable tooling: receipts + SHA256 + append-only ledger + verifiers.
+## Quickstart (Git Bash / Linux / macOS)
+```bash
+# 1) Sanity check everything
+./scripts/os3_doctor.sh
+# 2) Print a council proof block (latest)
+./scripts/os3_council_share.sh --copy
+# 3) Print the full “All Green” council update + appended proof (latest)
+./scripts/os3_post_latest.sh
