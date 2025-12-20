@@ -12,6 +12,7 @@ echo
 echo "2) Bash scripts parse?"
 bash -n scripts/os3_ceremony.sh
 bash -n scripts/os3_council_share.sh
+bash -n scripts/os3_council_update_post.sh
 bash -n scripts/os3_verify_now.sh
 bash -n scripts/pushit.sh
 echo "OK ✅ bash syntax"
