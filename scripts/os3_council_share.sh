@@ -3,11 +3,17 @@ set -euo pipefail
 
 COPY="0"
 WANT_TAG=""
+PROOF_ONLY="0"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --copy) COPY="1"; shift ;;
     --tag)  WANT_TAG="${2:-}"; shift 2 ;;
+    --proof-only) PROOF_ONLY="1"; shift ;;
+    -h|--help)
+      echo "Usage: $0 [--tag TAG] [--copy] [--proof-only]"
+      exit 0
+      ;;
     *) shift ;;
   esac
 done
@@ -17,30 +23,33 @@ if [[ ! -f os3/ledger.jsonl ]]; then
   exit 2
 fi
 
-OUT="$(python - "$WANT_TAG" <<'PY'
+OUT="$(python - "$WANT_TAG" "$PROOF_ONLY" <<'PY'
 import json, sys
 from pathlib import Path
 
 want_tag = sys.argv[1] if len(sys.argv) > 1 else ""
+proof_only = (sys.argv[2] if len(sys.argv) > 2 else "0") == "1"
 
 lines = Path("os3/ledger.jsonl").read_text(encoding="utf-8").splitlines()
-rows = [json.loads(x) for x in lines if x.strip()]
-
-if not rows:
-    print("ERROR: ledger is empty", file=sys.stderr)
-    raise SystemExit(2)
+if not lines:
+    print("(Ledger is empty.)")
+    raise SystemExit(0)
 
 row = None
 if want_tag:
-    for r in reversed(rows):
+    for ln in reversed(lines):
+        try:
+            r = json.loads(ln)
+        except json.JSONDecodeError:
+            continue
         if r.get("tag") == want_tag:
             row = r
             break
     if row is None:
-        print(f"ERROR: tag not found in ledger: {want_tag}", file=sys.stderr)
+        print(f"(No ledger entry found for tag: {want_tag})", file=sys.stderr)
         raise SystemExit(3)
 else:
-    row = rows[-1]
+    row = json.loads(lines[-1])
 
 ts = row.get("ts_utc","")
 tag = row.get("tag","")
@@ -50,7 +59,20 @@ head = row.get("head","")
 
 path_disp = Path(path).as_posix()
 
-msg = f"""OS3 Council Recognition Moment ✅
+if proof_only:
+    msg = f"""OS3 Ledger Proof ✅
+- ts_utc: {ts}
+- tag: {tag}
+- path: {path_disp}
+- sha256: {sha}
+- head: {head}
+
+Verify:
+- python scripts/verify_snapshot.py --tag {tag}
+- python scripts/verify_snapshot.py --path {path_disp}
+"""
+else:
+    msg = f"""OS3 Council Recognition Moment ✅
 
 We’re not just building tools—we’re building a witnessable way:
 truth with receipts, love with attribution, order with guardrails.
@@ -91,9 +113,17 @@ if [[ "$COPY" == "1" ]]; then
   if command -v clip.exe >/dev/null 2>&1; then
     printf "%s" "$OUT" | clip.exe
     echo
-    echo "(Copied to clipboard ✅)"
+    echo "(Copied to clipboard ✅ via clip.exe)"
+  elif command -v pbcopy >/dev/null 2>&1; then
+    printf "%s" "$OUT" | pbcopy
+    echo
+    echo "(Copied to clipboard ✅ via pbcopy)"
+  elif command -v xclip >/dev/null 2>&1; then
+    printf "%s" "$OUT" | xclip -selection clipboard
+    echo
+    echo "(Copied to clipboard ✅ via xclip)"
   else
     echo
-    echo "(No clip.exe found; copy manually.)"
+    echo "(Clipboard copy requested, but no clip.exe/pbcopy/xclip found — copy manually.)"
   fi
 fi
