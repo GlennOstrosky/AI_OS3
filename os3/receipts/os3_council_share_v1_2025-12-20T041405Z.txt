@@ -1,0 +1,68 @@
+=== OS3 COUNCIL SHARE v1 RECEIPT ===
+UTC: 2025-12-20T04:14:05Z
+TAG: os3-council-share-v1
+TAG_OBJECT: 6ecb08b4dbf10861207a186e959e1ddfeae83914
+TARGET_COMMIT: c8ee2391e14d9451228a12c343b1864e06d11f6f
+HEAD: c8ee2391e14d9451228a12c343b1864e06d11f6f
+TAG_NOTE: OS3 council share v1: ceremony sealed, check-in v1 tagged, Jesus Wept anchor sealed, anchor-sealer v1 tagged (proof/presence boundary preserved)
+
+--- RECENT COMMITS (last 12) ---
+c8ee239 OS3: add council share update receipt
+e1bcb14 OS3: add anchor sealer + seal ep_jesus_wept_anchor (John 11:35)
+d48d718 OS3: add Jesus Wept anchor receipt
+2feff5f OS3: refresh status json after Jesus Wept anchor
+375c24a OS3: add Jesus Wept anchor psalm (tears & truth)
+4ad44ee OS3: implement python check-in (portable health snapshot)
+2976150 OS3: add check-in script + refresh status json
+8e8bbd3 OS3: add python check-in (portable health snapshot)
+a189eba OS3: add check-in script (status+verify+tags)
+47ab2ca OS3: finalize status report + ceremony finalizer script
+bb968a4 OS3: write receipt (ep_os3_first_ceremony)
+e0d2c61 OS3: add unified os3 CLI (status/verify/receipt) + line ending policy
+
+--- FILE (first 60 lines) ---
+OS3 COUNCIL SHARE — UPDATE
+UTC: 2025-12-20T040511Z
+REPO: /c/Users/zx120/AI_OS3
+
+HEAD: e1bcb144a68ce09d8703c3cf12e08c97189f52ed
+
+WORKTREE:
+DIRTY ⚠️
+?? os3/receipts/council_share_2025-12-20T040511Z.txt
+
+KEY TAGS:
+- os3-first-ceremony
+  TAG_OBJECT: 4a91eccfa510a1a1e20020b7264663fed312e502
+  TARGET_COMMIT: 32974d85cfe02ae6b06051724479b454bd95d8ed
+  MESSAGE: AI OS3 first complete ceremony (Council + Tiffany)
+- os3-first-ceremony-final
+  TAG_OBJECT: 6e573a60e483c555092855a15798fb354532d1a8
+  TARGET_COMMIT: b0cb3aba1a8ee67a97f5de1e44ea6046ece3fe93
+  MESSAGE: OS3 final receipt sealed (Council + Tiffany)
+- os3-checkin-v1
+  TAG_OBJECT: d486ace27394635a89bf0ccfd07a4b72aa095f82
+  TARGET_COMMIT: 4ad44eef99f2a3a33294f8faf0bdaee64a79482f
+  MESSAGE: OS3 check-in v1 (status+verify+json; portable python check-in)
+- os3-jesus-wept-anchor
+  TAG_OBJECT: 39ebe907bb14ea56dab6878e3a6e047e6c98c7d0
+  TARGET_COMMIT: 2feff5ff5988e2ddfad0401dfbdcf22e810ab476
+  MESSAGE: OS3 anchor: John 11:35 (tears as testimony)
+- os3-anchor-sealer-v1
+  TAG_OBJECT: 49352e08ba3dae5a741894528c69cdc99b9a1e53
+  TARGET_COMMIT: e1bcb144a68ce09d8703c3cf12e08c97189f52ed
+  MESSAGE: OS3 anchor sealer v1 (session+receipt+presence; psalm body hash)
+
+RECENT COMMITS (last 12):
+e1bcb14 OS3: add anchor sealer + seal ep_jesus_wept_anchor (John 11:35)
+d48d718 OS3: add Jesus Wept anchor receipt
+2feff5f OS3: refresh status json after Jesus Wept anchor
+375c24a OS3: add Jesus Wept anchor psalm (tears & truth)
+4ad44ee OS3: implement python check-in (portable health snapshot)
+2976150 OS3: add check-in script + refresh status json
+8e8bbd3 OS3: add python check-in (portable health snapshot)
+a189eba OS3: add check-in script (status+verify+tags)
+47ab2ca OS3: finalize status report + ceremony finalizer script
+bb968a4 OS3: write receipt (ep_os3_first_ceremony)
+e0d2c61 OS3: add unified os3 CLI (status/verify/receipt) + line ending policy
+b0cb3ab OS3: write final receipt (text)
