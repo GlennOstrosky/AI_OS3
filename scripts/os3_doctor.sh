@@ -22,10 +22,18 @@ python scripts/verify_snapshot.py --last
 
 echo
 echo "4) Guard dry-run"
-python scripts/os3_guard.py --window "" || {
+set +e
+python scripts/os3_guard.py --window "${OS3_GUARD_WINDOW:-120}"
+rc=$?
+set -e
+
+if [[ "$rc" -eq 9 ]]; then
   echo "Guard: BLOCKED (recent receipt within window). Use --force in ceremony." >&2
   exit 9
-}
+elif [[ "$rc" -ne 0 ]]; then
+  echo "Guard: ERROR (guard failed with exit $rc)" >&2
+  exit "$rc"
+fi
 echo "OK ✅ guard pass"
 
 echo
