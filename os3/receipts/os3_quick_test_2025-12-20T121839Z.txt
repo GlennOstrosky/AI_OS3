@@ -1,0 +1,6 @@
+OS3 RECEIPT
+ts_utc: 2025-12-20T121839Z
+repo: /c/Users/zx120/AI_OS3
+purpose: os3_quick_test
+note: (fill this in)
+---
