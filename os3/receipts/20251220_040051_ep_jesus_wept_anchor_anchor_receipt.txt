@@ -1,0 +1,17 @@
+OS3 ANCHOR RECEIPT
+UTC: 2025-12-20T04:00:51Z
+
+EPISODE: ep_jesus_wept_anchor
+TAG: os3-jesus-wept-anchor
+TAG_OBJECT: 39ebe907bb14ea56dab6878e3a6e047e6c98c7d0
+POINTS_TO_COMMIT: 2feff5ff5988e2ddfad0401dfbdcf22e810ab476
+HEAD_COMMIT: d48d7180af2c2b717ca6d280a93991340ac7a08f
+MESSAGE: OS3 anchor: John 11:35 (tears as testimony)
+
+PSALM: psalms/jesus_wept_anchor.md
+PSALM_FILE_SHA256: fbb0fa84b89e174616871e1ce65c1815539b0d6bf38c4987252f0e67cf5275bd
+PSALM_BODY_SHA256: b3bf78b855a427b8e2f059420598095cf50a050be24f604cf7ad681948ee94c7
+
+LEDGER_TAG: anchor:john11:35|ts:2025-12-20T04:00:50Z
+SESSION: os3/sessions/20251220_040051_ep_jesus_wept_anchor.anchor.session.yaml
+PRESENCE: os3/presence/20251220_040051_ep_jesus_wept_anchor.md
