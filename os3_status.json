@@ -1,13 +1,13 @@
 {
   "tool": "os3_status",
-  "generated_at_utc": "2025-12-20T03:21:16+00:00",
+  "generated_at_utc": "2025-12-20T06:01:43+00:00",
   "repo_root": "C:\\Users\\zx120\\AI_OS3",
   "counts": {
     "psalms": 2,
     "attestations": 1,
     "bundles": 1,
-    "sessions": 1,
-    "presence_notes": 1
+    "sessions": 2,
+    "presence_notes": 2
   },
   "attestations_have_fill_tokens": false,
   "sessions": [
@@ -19,7 +19,19 @@
       "bundle_ok": true,
       "presence_ok": true,
       "notes": []
+    },
+    {
+      "episode": "ep_jesus_wept_anchor",
+      "session_file": "os3\\sessions\\20251220_040051_ep_jesus_wept_anchor.anchor.session.yaml",
+      "psalm_ok": true,
+      "attest_ok": false,
+      "bundle_ok": false,
+      "presence_ok": true,
+      "notes": [
+        "attest_path_missing",
+        "bundle_path_missing"
+      ]
     }
   ],
-  "ok": true
+  "ok": false
 }
