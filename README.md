@@ -6,3 +6,4 @@ Run locally:
 - `python scripts/verify_snapshot.py --last`
 - `python scripts/verify_snapshot.py --path <snapshot-path>`
 - `python scripts/verify_snapshot.py --tag <tag>`
+Workflow: `.github/workflows/os3-verify.yml`
