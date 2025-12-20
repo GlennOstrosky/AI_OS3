@@ -20,31 +20,14 @@ for arg in "${@:3}"; do
   esac
 done
 
-# Make bash FORCE visible to the guard Python via env
-export FORCE="$FORCE"
+WINDOW="${OS3_GUARD_WINDOW:-120}"
 
-# Guard: prevent accidental double-runs within 120s unless --force
-python - <<'PY'
-import glob, os, time, sys
-from pathlib import Path
-
-WINDOW = 120  # seconds
-FORCE = int(os.environ.get("FORCE", "0"))
-
-files = glob.glob("os3/receipts/*.txt")
-if not files:
-    sys.exit(0)
-
-newest = max(files, key=lambda p: os.path.getmtime(p))
-age = int(time.time() - os.path.getmtime(newest))
-newest_disp = Path(newest).as_posix()  # always forward slashes
-
-if age < WINDOW and FORCE == 0:
-    remaining = WINDOW - age
-    print(f"⚠️  Newest receipt is only {age}s old (guard {WINDOW}s): {newest_disp}")
-    print(f"    Wait {remaining}s or re-run with --force.")
-    sys.exit(9)
-PY
+# Guard: prevent accidental double-runs within WINDOW unless --force
+GUARD_ARGS=(--window "$WINDOW")
+if [[ "$FORCE" == "1" ]]; then
+  GUARD_ARGS+=(--force)
+fi
+python scripts/os3_guard.py "${GUARD_ARGS[@]}"
 
 # 1) Create receipt
 OUT="$(./scripts/os3_new_receipt.sh "$NAME" | awk -F': ' '{print $2}')"
