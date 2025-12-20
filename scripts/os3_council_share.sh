@@ -22,6 +22,7 @@ import json, sys
 from pathlib import Path
 
 want_tag = sys.argv[1] if len(sys.argv) > 1 else ""
+
 lines = Path("os3/ledger.jsonl").read_text(encoding="utf-8").splitlines()
 rows = [json.loads(x) for x in lines if x.strip()]
 
