@@ -28,7 +28,7 @@ if not files:
     sys.exit(0)
 newest = max(files, key=lambda p: os.path.getmtime(p))
 age = int(time.time() - os.path.getmtime(newest))
-if age < 30 and ${FORCE} == 0:
+if age < 120 and ${FORCE} == 0:
     print(f"⚠️  Newest receipt is only {age}s old: {newest}")
     print("    If you intend a second run, re-run with --force.")
     sys.exit(9)
