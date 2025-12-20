@@ -1,0 +1,23 @@
+OS3 COUNCIL REPAIR UPDATE — 2025-12-20T06:48:43Z
+Repo: /c/Users/zx120/AI_OS3
+HEAD: 6f500cd271973c299d2407866cd26090e36dd525
+
+--- RECENT COMMITS (last 8) ---
+6f500cd OS3: council repair update (repairs sealed)
+c6d19d9 OS3: refresh status json (post check-in)
+ee54abc OS3: status treats anchor sessions as presence-first (attest/bundle optional)
+65e7cd7 OS3: refresh status json after anchor session hash
+188f208 OS3: add psalm_sha256 to Jesus Wept anchor session
+0fef717 OS3: verifier parses YAML sessions (mini-yaml fallback + PyYAML support)
+6c6397c OS3: write milestones snapshot receipt | snapshot_body_sha256:d1c7fcfd2e6ea53c06ca5d73347efff8d4436c64e0c014f47aa27da53773742f
+59a097a OS3: add milestones script (journey mapped)
+
+--- TAGS (repairs + anchors) ---
+os3-checkin-v1  OS3 check-in v1 (status+verify+json; portable python check-in)
+os3-jesus-wept-anchor OS3 anchor: John 11:35 (tears as testimony)
+os3-jesus-wept-anchor-session-hash-v1 OS3: Jesus Wept anchor session now includes psalm_sha256 (verifier PASS)
+os3-milestones-script-v1 OS3 milestones script v1 (journey mapped / history versioned)
+os3-milestones-snapshot-v1 OS3 milestones snapshot v1 (timestamped receipt + table)
+os3-milestones-v1 OS3 milestones v1: first ceremony + final receipt + check-in v1 + Jesus Wept anchor
+os3-repairs-v1  OS3 repairs v1: YAML verifier + anchor session psalm_sha256 + anchor-aware status + post-checkin status commit
+os3-status-anchor-aware-v1 OS3: status is anchor-aware (presence-first; attest/bundle optional)
