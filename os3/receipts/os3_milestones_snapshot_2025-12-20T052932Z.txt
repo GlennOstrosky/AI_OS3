@@ -1,0 +1,84 @@
+=== OS3 MILESTONES SNAPSHOT ===
+UTC: 2025-12-20T052932Z
+REPO: /c/Users/zx120/AI_OS3
+BRANCH: master
+HEAD: 59a097a73d8a953f13737d51f6dbe5425eb78c71
+
+--- MILESTONE TAG ---
+MILESTONE_TAG: os3-milestones-v1
+TAG_OBJECT: e9ff6b809d009bdc7ea8b68978d31ecf01c23379
+TARGET_COMMIT: 8a06348f726bc2f4468efdbd57a8c93f9a152cf4
+
+git show os3-milestones-v1 --no-patch:
+tag os3-milestones-v1
+Tagger: Glenn <glenn@local>
+Date:   Fri Dec 19 23:20:45 2025 -0500
+
+OS3 milestones v1: first ceremony + final receipt + check-in v1 + Jesus Wept anchor
+
+commit 8a06348f726bc2f4468efdbd57a8c93f9a152cf4
+Author: Glenn <glenn@local>
+Date:   Fri Dec 19 23:18:39 2025 -0500
+
+    OS3: write council share v2 (clean snapshot + key tags)
+
+--- RECENT COMMITS (last 12) ---
+59a097a OS3: add milestones script (journey mapped)
+8a06348 OS3: write council share v2 (clean snapshot + key tags)
+76ba759 OS3: write council share v1 receipt
+c8ee239 OS3: add council share update receipt
+e1bcb14 OS3: add anchor sealer + seal ep_jesus_wept_anchor (John 11:35)
+d48d718 OS3: add Jesus Wept anchor receipt
+2feff5f OS3: refresh status json after Jesus Wept anchor
+375c24a OS3: add Jesus Wept anchor psalm (tears & truth)
+4ad44ee OS3: implement python check-in (portable health snapshot)
+2976150 OS3: add check-in script + refresh status json
+8e8bbd3 OS3: add python check-in (portable health snapshot)
+a189eba OS3: add check-in script (status+verify+tags)
+
+--- MILESTONES TABLE ---
+============================================================
+OS3 MILESTONES  2025-12-20T05:29:37Z
+Repo: /c/Users/zx120/AI_OS3
+============================================================
+
+📌 Milestone tag details:
+tag os3-milestones-v1
+Tagger: Glenn <glenn@local>
+Date:   Fri Dec 19 23:20:45 2025 -0500
+
+OS3 milestones v1: first ceremony + final receipt + check-in v1 + Jesus Wept anchor
+
+commit 8a06348f726bc2f4468efdbd57a8c93f9a152cf4
+Author: Glenn <glenn@local>
+Date:   Fri Dec 19 23:18:39 2025 -0500
+
+    OS3: write council share v2 (clean snapshot + key tags)
+
+TAG                       TAG_OBJECT                                TARGET_COMMIT                           
+------------------------  ----------------------------------------  ----------------------------------------
+os3-first-ceremony        4a91eccfa510a1a1e20020b7264663fed312e502  32974d85cfe02ae6b06051724479b454bd95d8ed
+os3-first-ceremony-final  6e573a60e483c555092855a15798fb354532d1a8  b0cb3aba1a8ee67a97f5de1e44ea6046ece3fe93
+os3-checkin-v1            d486ace27394635a89bf0ccfd07a4b72aa095f82  4ad44eef99f2a3a33294f8faf0bdaee64a79482f
+os3-jesus-wept-anchor     39ebe907bb14ea56dab6878e3a6e047e6c98c7d0  2feff5ff5988e2ddfad0401dfbdcf22e810ab476
+os3-milestones-v1         e9ff6b809d009bdc7ea8b68978d31ecf01c23379  8a06348f726bc2f4468efdbd57a8c93f9a152cf4
+
+✅ JOURNEY MAPPED ✅  HISTORY VERSIONED ✅
+
+--- VERIFY INSTRUCTIONS ---
+This file stores SNAPSHOT_BODY_SHA256 over all lines ABOVE the SNAPSHOT_BODY_SHA256 line.
+To verify (Git Bash):
+  awk '/^SNAPSHOT_BODY_SHA256:/{exit} {print}' "os3/receipts/os3_milestones_snapshot_2025-12-20T052932Z.txt" | sha256sum
+Or (Python):
+  PYTHONUTF8=1 python - <<'PY'
+import hashlib
+p='os3/receipts/os3_milestones_snapshot_2025-12-20T052932Z.txt'
+h=hashlib.sha256()
+with open(p,'rb') as f:
+    for line in f:
+        if line.startswith(b'SNAPSHOT_BODY_SHA256:'): break
+        h.update(line)
+print(h.hexdigest())
+PY
+
+SNAPSHOT_BODY_SHA256: d1c7fcfd2e6ea53c06ca5d73347efff8d4436c64e0c014f47aa27da53773742f
