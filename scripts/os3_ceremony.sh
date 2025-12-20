@@ -20,17 +20,29 @@ for arg in "${@:3}"; do
   esac
 done
 
-# Guard: prevent accidental double-runs within 30s unless --force
-python - <<PY
+# Make bash FORCE visible to the guard Python via env
+export FORCE="$FORCE"
+
+# Guard: prevent accidental double-runs within 120s unless --force
+python - <<'PY'
 import glob, os, time, sys
+from pathlib import Path
+
+WINDOW = 120  # seconds
+FORCE = int(os.environ.get("FORCE", "0"))
+
 files = glob.glob("os3/receipts/*.txt")
 if not files:
     sys.exit(0)
+
 newest = max(files, key=lambda p: os.path.getmtime(p))
 age = int(time.time() - os.path.getmtime(newest))
-if age < 120 and ${FORCE} == 0:
-    print(f"⚠️  Newest receipt is only {age}s old: {newest}")
-    print("    If you intend a second run, re-run with --force.")
+newest_disp = Path(newest).as_posix()  # always forward slashes
+
+if age < WINDOW and FORCE == 0:
+    remaining = WINDOW - age
+    print(f"⚠️  Newest receipt is only {age}s old (guard {WINDOW}s): {newest_disp}")
+    print(f"    Wait {remaining}s or re-run with --force.")
     sys.exit(9)
 PY
 
