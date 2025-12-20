@@ -21,3 +21,11 @@ os3-milestones-snapshot-v1 OS3 milestones snapshot v1 (timestamped receipt + tab
 os3-milestones-v1 OS3 milestones v1: first ceremony + final receipt + check-in v1 + Jesus Wept anchor
 os3-repairs-v1  OS3 repairs v1: YAML verifier + anchor session psalm_sha256 + anchor-aware status + post-checkin status commit
 os3-status-anchor-aware-v1 OS3: status is anchor-aware (presence-first; attest/bundle optional)
+
+--- KEY TAG OBJECTS (tag_object -> target_commit) ---
+os3-repairs-v1                     TAG_OBJECT=e801f1d6376f635609a63d427158b9c40557523a  TARGET_COMMIT=c6d19d98029f25023052466d4dac56b6f26dda12
+os3-repairs-v1-receipt             TAG_OBJECT=bea57652065b6ac248ff9bc26384db82b2bfa9c3  TARGET_COMMIT=d4fa93e31e225d1b10ff9b0c0c7402b894370c99
+os3-status-anchor-aware-v1         TAG_OBJECT=61fcbcddd1531c9c51063d685ce6576f4023338a  TARGET_COMMIT=ee54abc2793f27230138af193c1f1965baf0c0ba
+os3-jesus-wept-anchor-session-hash-v1 TAG_OBJECT=a2e0d7b90975f43b56b31ac8d9d24986b324f9ec  TARGET_COMMIT=65e7cd7cc9477d9d29662cbe397a84177e6353c6
+os3-checkin-v1                     TAG_OBJECT=d486ace27394635a89bf0ccfd07a4b72aa095f82  TARGET_COMMIT=4ad44eef99f2a3a33294f8faf0bdaee64a79482f
+os3-milestones-v1                  TAG_OBJECT=e9ff6b809d009bdc7ea8b68978d31ecf01c23379  TARGET_COMMIT=8a06348f726bc2f4468efdbd57a8c93f9a152cf4
