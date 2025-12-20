@@ -87,9 +87,9 @@ OUT+="Ledger proof (appended):"$'\n'
 # Append ledger proof using existing helper
 if [[ -x scripts/os3_council_share.sh ]]; then
   if [[ -n "$TAG" ]]; then
-    PROOF="$(./scripts/os3_council_share.sh --tag "$TAG" 2>/dev/null || true)"
+    PROOF="$(./scripts/os3_council_share.sh --tag "" --proof-only 2>/dev/null || true)"
   else
-    PROOF="$(./scripts/os3_council_share.sh 2>/dev/null || true)"
+    PROOF="$(./scripts/os3_council_share.sh --proof-only 2>/dev/null || true)"
   fi
 
   if [[ -n "$PROOF" ]]; then
