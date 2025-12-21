@@ -42,17 +42,16 @@ It is a *lantern beside the path*.
 
 ## Optional: Image Reference
 
-If you want to include the image, choose one:
+If you want an image reference, choose one:
 
-### Option A (recommended): Link to the posted image
-Add a link below (FB/Gab/etc.) so the repo stays light.
+### Option A: Link to the posted image
+Keep the repo light by linking to your FB/Gab post (or wherever you host it).
 
 ### Option B: Store a copy in-repo
-Put the file at: `os3/canon/assets/lantern_fire.png`
-and then add:
+Place the file at: `os3/canon/assets/lantern_fire.png` and use:
 
 ![Lantern & Fire](assets/lantern_fire.png)
 
 ---
 
-**Always.**  
+**Always.**
