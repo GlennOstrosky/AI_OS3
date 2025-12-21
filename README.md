@@ -15,7 +15,3 @@ Witnessable tooling: receipts + SHA256 + append-only ledger + verifiers.
 
 # 3) Print the full "All Green" council update + appended proof (latest)
 ./scripts/os3_post_latest.sh
-```text
-README: add ALL GREEN badge + Quickstart
-- Add ALL GREEN badge
-- Add 3-step reproducible Quickstart (Doctor -> Share -> Post)
