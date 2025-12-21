@@ -15,3 +15,5 @@ foundational values beneath OS3.
 
 **Principle:**  
 Rails verify facts. Canon witnesses values.
+
+- **psalm_of_lantern_and_fire.md** — Lantern beside the path; invitation, not command
