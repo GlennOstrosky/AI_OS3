@@ -14,4 +14,4 @@ Witnessable tooling: receipts + SHA256 + append-only ledger + verifiers.
 ./scripts/os3_council_share.sh --copy
 
 # 3) Print the full "All Green" council update + appended proof (latest)
-./scripts/os3_post_latest.sh
+./scripts/os3_post_latest.sh 
