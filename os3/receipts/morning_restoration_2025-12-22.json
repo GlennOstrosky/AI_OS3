@@ -1,0 +1,10 @@
+{
+  "tag": "os3-morning-restoration-v1",
+  "what": "OS3 morning restoration: covenant + canon + boot ritual",
+  "artifacts": [
+    "COVENANT.md",
+    "canon/use_cases.md",
+    "scripts/morning_boot.sh"
+  ],
+  "note": "Receipt-only witness for the morning restoration tag."
+}
