@@ -173,6 +173,23 @@ def cmd_receipt(root: Path, session: Optional[str], latest: bool, tag: Optional[
     sh(["git", "commit", "-m", f"OS3: write receipt ({episode})"], cwd=root)
     return 0
 
+
+def cmd_love_coefficient(root: Path, text: str, witness: bool, no_receipt: bool) -> int:
+    script = root / "scripts" / "os3_love_coefficient.py"
+    if not script.exists():
+        print("Missing scripts/os3_love_coefficient.py")
+        return 2
+
+    cmd = [sys.executable, str(script), "--text", text]
+    if witness:
+        cmd.append("--witness")
+    if no_receipt:
+        cmd.append("--no-receipt")
+
+    p = sh(cmd, cwd=root)
+    return p.returncode
+
+
 def main() -> int:
     _force_utf8_stdio()
 
@@ -187,6 +204,11 @@ def main() -> int:
     p_verify.add_argument("--latest", action="store_true", help="Verify latest session automatically.")
 
     p_receipt = sub.add_parser("receipt", help="Write a fresh receipt into os3/receipts/.")
+    p_love = sub.add_parser("love-coefficient", help="Compute love coefficient (lexicon-based, truth-attested).")
+    p_love.add_argument("--text", required=True, help="Text to analyze")
+    p_love.add_argument("--witness", action="store_true", help="Print truth boundary (to stderr)")
+    p_love.add_argument("--no-receipt", action="store_true", help="Do not write a receipt file")
+
     p_receipt.add_argument("--session", help="Path to session yaml (relative to repo root).")
     p_receipt.add_argument("--latest", action="store_true", help="Use latest session automatically.")
     p_receipt.add_argument("--tag", help="Optional annotated git tag to create at HEAD.")
@@ -196,10 +218,19 @@ def main() -> int:
 
     if args.cmd == "status":
         return cmd_status(root, args.format)
+       
     if args.cmd == "verify":
         return cmd_verify(root, args.session, args.latest)
+
     if args.cmd == "receipt":
         return cmd_receipt(root, args.session, args.latest, args.tag)
+
+    if args.cmd == "love-coefficient":
+        return cmd_love_coefficient(root, args.text, args.witness, args.no_receipt)
+
+    ap.print_help()
+    return 2
+
 
     return 2
 

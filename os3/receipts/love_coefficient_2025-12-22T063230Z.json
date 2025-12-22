@@ -1,0 +1,16 @@
+{
+  "utc": "2025-12-22T06:32:30Z",
+  "event_type": "LOVE_COEFFICIENT",
+  "payload": {
+    "score": 0.5,
+    "counts": {
+      "affection": 1,
+      "gratitude": 1,
+      "trust": 1,
+      "repair": 1
+    },
+    "tokens": 8,
+    "notes": "Transparent lexicon score (counts + clamp)."
+  },
+  "receipt_hash": "8ec912a1681d1cd2cf795e7da90716ea2ac68dc87d4742f433e3817d76bca22d"
+}
