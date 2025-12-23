@@ -2,3 +2,6 @@
 # Python bytecode / cache
 __pycache__/
 *.pyc
+
+# Scratch / one-off repair scripts
+tools/_scratch_*/
