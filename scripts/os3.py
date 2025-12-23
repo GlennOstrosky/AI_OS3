@@ -10,6 +10,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+# --- OS3 PATH GUARD ---
+import sys as _sys
+from pathlib import Path as _Path
+_ROOT = _Path(__file__).resolve().parents[1]
+if str(_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_ROOT))
+# --- END PATH GUARD ---
+
+
 def _force_utf8_stdio() -> None:
     # Prevent Windows cp1252 UnicodeEncodeError (emoji etc.)
     try:
@@ -189,6 +198,108 @@ def cmd_love_coefficient(root: Path, text: str, witness: bool, no_receipt: bool)
     p = sh(cmd, cwd=root)
     return p.returncode
 
+def cmd_libra_assess(root: Path, text: str, fmt: str, witness: bool, strict: bool) -> int:
+    """Assess text for public readiness (GREEN/YELLOW/RED)."""
+    import sys
+    
+    # Handle --stdin: read from stdin if flag is present
+    if '--stdin' in sys.argv:
+        text = sys.stdin.read()
+    
+    # If text is empty even after stdin, show error
+    if not text:
+        print("Error: No text provided. Use --text or --stdin.", file=sys.stderr)
+        return 2
+    
+    try:
+        from os3.libra import assess, witness_block, redact
+    except ImportError as e:
+        print(f"Libra module missing: {e}", file=sys.stderr)
+        return 2
+
+        print(f"DEBUG: About to call assess() with text: {repr(text[:50])}...", file=sys.stderr)
+        print(f"DEBUG: Text length: {len(text)}", file=sys.stderr)
+    result = assess(text)
+
+    
+    if fmt == "json":
+        print(result.to_json())
+    else:
+        print(result.to_text())
+    
+    if witness:
+        redacted = None
+        if result.redaction_needed:
+            redacted, _, _ = redact(text)
+        print()
+        print(witness_block(text, result, redacted=redacted))
+    
+    return result.exit_code(strict=strict)
+
+
+def cmd_libra_redact(root: Path, text: str, fmt: str, out: Optional[str]) -> int:
+    """Redact PII deterministically."""
+    # Handle --stdin: read from stdin if flag is present
+    if '--stdin' in sys.argv:
+        text = sys.stdin.read()
+    
+    # If text is empty even after stdin, show error
+    if not text:
+        print("Error: No text provided. Use --text or --stdin.", file=sys.stderr)
+        return 2
+    
+    try:
+        from os3.libra import redact, sha256_text
+    except ImportError as e:
+        print(f"Libra module missing: {e}", file=sys.stderr)
+        return 2
+    
+    redacted_text, changed, findings = redact(text)
+    
+    if fmt == "json":
+        import json
+        payload = {
+            "changed": changed,
+            "sha256_original": sha256_text(text),
+            "sha256_redacted": sha256_text(redacted_text),
+            "findings": [{"code": f.code, "message": f.message} for f in findings]
+        }
+        print(json.dumps(payload, indent=2))
+    else:
+        print(redacted_text)
+    
+    if out:
+        (root / out).write_text(redacted_text, encoding="utf-8")
+        print(f"Written to: {out}", file=sys.stderr)
+    
+    return 0
+
+
+def cmd_libra_seal(root: Path, text: str, redact_flag: bool, strict: bool) -> int:
+    """Produce a paste-ready Libra witness block."""
+    # Handle --stdin
+    if '--stdin' in sys.argv:
+        text = sys.stdin.read()
+    
+    if not text:
+        print("Error: No text provided. Use --text or --stdin.", file=sys.stderr)
+        return 2
+    
+    try:
+        from os3.libra import assess, witness_block, redact
+    except ImportError as e:
+        print(f"Libra module missing: {e}", file=sys.stderr)
+        return 2
+    
+    result = assess(text)
+    redacted = None
+    if redact_flag:
+        redacted, _, _ = redact(text)
+    
+    print(witness_block(text, result, redacted=redacted))
+    return result.exit_code(strict=strict)
+
+
 
 def main() -> int:
     _force_utf8_stdio()
@@ -209,30 +320,50 @@ def main() -> int:
     p_love.add_argument("--witness", action="store_true", help="Print truth boundary (to stderr)")
     p_love.add_argument("--no-receipt", action="store_true", help="Do not write a receipt file")
 
-    p_receipt.add_argument("--session", help="Path to session yaml (relative to repo root).")
-    p_receipt.add_argument("--latest", action="store_true", help="Use latest session automatically.")
-    p_receipt.add_argument("--tag", help="Optional annotated git tag to create at HEAD.")
+    # Libra commands
+    p_libra = sub.add_parser("libra", help="Libra OS: balance checks for public readiness")
+    libra_sub = p_libra.add_subparsers(dest="libra_cmd", required=True)
+    
+    # assess
+    p_assess = libra_sub.add_parser("assess", help="Assess text for public readiness (GREEN/YELLOW/RED)")
+    p_assess.add_argument("--text", help="Text to assess")
+    p_assess.add_argument("--stdin", action="store_true", help="Read input from stdin")
+    p_assess.add_argument("--format", choices=["text", "json"], default="text")
+    p_assess.add_argument("--witness", action="store_true", help="Print a witness block")
+    p_assess.add_argument("--strict", action="store_true", help="Return exit code 1 for YELLOW")
+    p_redact = libra_sub.add_parser("redact", help="Redact PII deterministically")
+    p_assess.set_defaults(func=cmd_libra_assess)
+    p_redact.add_argument("--text", help="Text to redact")
+    p_redact.add_argument("--stdin", action="store_true", help="Read input from stdin")
+    p_redact.add_argument("--format", choices=["text", "json"], default="text")
+    p_redact.add_argument("--out", help="Write redacted output to this file")
+    p_seal = libra_sub.add_parser("seal", help="Produce a paste-ready Libra witness block")
+    p_seal.add_argument("--text", help="Text to seal")
+    p_seal.add_argument("--stdin", action="store_true", help="Read input from stdin")
+    p_seal.add_argument("--redact", action="store_true", help="Include redacted_sha256 if redaction changes text")
+    p_seal.add_argument("--format", choices=["text", "json"], default="text")
+    p_seal.add_argument("--witness", action="store_true", help="Print a witness block")
+    p_seal.add_argument("--strict", action="store_true", help="Return exit code 1 for YELLOW")
+    p_seal.set_defaults(func=cmd_libra_seal)
 
+    p_redact.set_defaults(func=cmd_libra_redact)
+
+    # Parse and dispatch
     args = ap.parse_args()
-    root = repo_root(Path("."))
+    root = repo_root(Path.cwd())
+    
+    if args.cmd == "libra" and hasattr(args, 'func'):
+        kwargs = {'root': root, 'text': args.text if hasattr(args, 'text') else ''}
+        if args.libra_cmd == 'assess':
+            kwargs.update({'fmt': args.format, 'witness': args.witness, 'strict': args.strict})
+        elif args.libra_cmd == 'redact':
+            kwargs.update({'fmt': args.format, 'out': args.out})
+        elif args.libra_cmd == 'seal':
+            kwargs.update({'redact_flag': args.redact, 'strict': args.strict})
+        return args.func(**kwargs)
+    
+    return 0
 
-    if args.cmd == "status":
-        return cmd_status(root, args.format)
-       
-    if args.cmd == "verify":
-        return cmd_verify(root, args.session, args.latest)
-
-    if args.cmd == "receipt":
-        return cmd_receipt(root, args.session, args.latest, args.tag)
-
-    if args.cmd == "love-coefficient":
-        return cmd_love_coefficient(root, args.text, args.witness, args.no_receipt)
-
-    ap.print_help()
-    return 2
-
-
-    return 2
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
