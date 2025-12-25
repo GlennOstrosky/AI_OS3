@@ -1,0 +1,10 @@
+╭──────────────────────────────────────────╮
+│ OS3 LIBRA WITNESS                         │
+│ Balance verdict + receipt                 │
+╰──────────────────────────────────────────╯
+sealed_at: 2025-12-24T21:56:36Z
+verdict:   YELLOW
+score:     90
+sha256:    42e9a9cb9b6421868a4c0bdaebb5a929d7155078a75f3d5daf54cfe08f066c0b
+findings:
+  - RECEIPTS_MISSING: No receipt/provenance markers found.

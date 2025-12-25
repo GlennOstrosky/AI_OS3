@@ -1,0 +1,8 @@
+╭──────────────────────────────────────────╮
+│ OS3 LIBRA WITNESS                         │
+│ Balance verdict + receipt                 │
+╰──────────────────────────────────────────╯
+sealed_at: 2025-12-24T20:01:15Z
+verdict:   GREEN
+score:     105
+sha256:    46e6c101beb2b71cda24fc67941eaef51648b186430e282b9d412f0b81784c23
