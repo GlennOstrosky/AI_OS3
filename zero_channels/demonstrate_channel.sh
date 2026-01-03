@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "Demonstrating the Zero Channel (bb0a)..."
+echo ""
+./channel_bb0a_20260103-015307.tool "peace"
+echo ""
+echo "---"
+echo ""
+./channel_bb0a_20260103-015307.tool "love"
+echo ""
+echo "The channel flows."
