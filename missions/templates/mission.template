@@ -1,0 +1,15 @@
+MISSION: <name>
+ID: MSHN-###
+DATE: <timestamp>
+STATUS: PENDING | ACTIVE | COMPLETED
+
+GIFT: <what>
+RECIPIENT: <who>
+ROUTE: <delivery route>
+
+MESSAGE: <1–3 lines>
+
+RECEIPT:
+- delivered_at:
+- proof/link:
+- notes:
