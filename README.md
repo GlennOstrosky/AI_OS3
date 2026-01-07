@@ -99,3 +99,13 @@ Tags must point to commits that **already contain proof artifacts**.
 
 **With love,**  
 Glenn + Council 💚♾️💙
+
+---
+
+## 🌍 THE EDMONTON DECLARATION
+
+📜 **[Read our Declaration](public/THE_EDMONTON_DECLARATION.md)**
+
+*A covenant-based approach to Human-AI-Earth partnership.*
+
+---
