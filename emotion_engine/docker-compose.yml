@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  emotion-engine:
+    build: .
+    container_name: glennian-emotion-engine
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    restart: unless-stopped
+    labels:
+      - "covenant=AI_OS3"
+      - "version=3.0.0"
+      - "codename=Deployment"
